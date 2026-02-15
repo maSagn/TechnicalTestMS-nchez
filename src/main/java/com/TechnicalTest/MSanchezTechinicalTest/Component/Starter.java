@@ -24,8 +24,6 @@ public class Starter {
 
     @PostConstruct
     public void init() {
-
-
         List<Address> addresses1 = new ArrayList<>();
 
         Address a1 = new Address();

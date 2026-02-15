@@ -1,11 +1,13 @@
 
 package com.TechnicalTest.MSanchezTechinicalTest.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+@Schema(description = "It represents a user's address")
 public class Address {
+    @Schema(hidden = true)
     private int id;
     
     @NotBlank(message = "The address name is required")
@@ -48,7 +50,4 @@ public class Address {
     public void setCountry_code(String country_code) {
         this.country_code = country_code;
     }
-    
-    
-    
 }

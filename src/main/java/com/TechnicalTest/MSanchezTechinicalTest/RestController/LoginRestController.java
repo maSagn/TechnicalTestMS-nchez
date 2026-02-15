@@ -5,15 +5,19 @@
 package com.TechnicalTest.MSanchezTechinicalTest.RestController;
 
 import com.TechnicalTest.MSanchezTechinicalTest.Component.JwtUtil;
+import com.TechnicalTest.MSanchezTechinicalTest.DTO.Login;
 import com.TechnicalTest.MSanchezTechinicalTest.Model.User;
 import com.TechnicalTest.MSanchezTechinicalTest.Service.CustomerDetailsService;
 import com.TechnicalTest.MSanchezTechinicalTest.Service.EncryptService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Login RestController", description = "Controller focused on login methods")
 @RestController
 @RequestMapping("auth")
 public class LoginRestController {
@@ -26,8 +30,9 @@ public class LoginRestController {
         this.jwtUtil = jwtUtil;
     }
     
+    @Operation(summary = "Endpoint for user authentication", description = "Endpoint for user authentication where tax_id is the username")
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody User loginRequest) {
+    public ResponseEntity login(@RequestBody Login loginRequest) {
         try {
             User user = customerDetailsService.findByTaxId(loginRequest.getTax_id());
             if (user == null) return ResponseEntity.status(401).body("Usuario no encontrado");

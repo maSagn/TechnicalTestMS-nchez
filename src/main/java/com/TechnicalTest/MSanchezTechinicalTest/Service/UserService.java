@@ -1,10 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.TechnicalTest.MSanchezTechinicalTest.Service;
 
-
+import com.TechnicalTest.MSanchezTechinicalTest.DTO.UserUpdate;
+import com.TechnicalTest.MSanchezTechinicalTest.Model.Address;
 import com.TechnicalTest.MSanchezTechinicalTest.Model.Result;
 import com.TechnicalTest.MSanchezTechinicalTest.Model.User;
 import java.time.ZoneId;
@@ -21,9 +19,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
+    private int TotalAddresses = 1;
     private final List<User> usersList = new ArrayList<>();
-    
-    //Ordenar
+
     public Result GetAllSortedBy(List<String> sortedBy) {
         Result result = new Result();
 
@@ -33,31 +31,38 @@ public class UserService {
 
             if (sortedBy != null && !sortedBy.isEmpty()) {
 
-            Comparator<User> comparator = null;
+                Comparator<User> comparator = null;
 
-            for (String field : sortedBy) {
+                for (String field : sortedBy) {
 
-                Comparator<User> current = switch (field.toLowerCase()) {
-                    case "email" -> Comparator.comparing(User::getEmail);
-                    case "id" -> Comparator.comparing(User::getId);
-                    case "name" -> Comparator.comparing(User::getName);
-                    case "phone" -> Comparator.comparing(User::getPhone);
-                    case "tax_id" -> Comparator.comparing(User::getTax_id);
-                    case "created_at" -> Comparator.comparing(User::getCreated_at);
-                    default -> null;
-                };
+                    Comparator<User> current = switch (field.toLowerCase()) {
+                        case "email" ->
+                            Comparator.comparing(User::getEmail);
+                        case "id" ->
+                            Comparator.comparing(User::getId);
+                        case "name" ->
+                            Comparator.comparing(User::getName);
+                        case "phone" ->
+                            Comparator.comparing(User::getPhone);
+                        case "tax_id" ->
+                            Comparator.comparing(User::getTax_id);
+                        case "created_at" ->
+                            Comparator.comparing(User::getCreated_at);
+                        default ->
+                            null;
+                    };
 
-                if (current != null) {
-                    comparator = (comparator == null)
-                            ? current
-                            : comparator.thenComparing(current);
+                    if (current != null) {
+                        comparator = (comparator == null)
+                                ? current
+                                : comparator.thenComparing(current);
+                    }
+                }
+
+                if (comparator != null) {
+                    sortedList.sort(comparator);
                 }
             }
-
-            if (comparator != null) {
-                sortedList.sort(comparator);
-            }
-        }
 
             result.object = sortedList;
             result.correct = true;
@@ -70,62 +75,75 @@ public class UserService {
 
         return result;
     }
-    
-    //Filtrar
-    // GET /users?filter=[attribute]+[operator]+[value]
+
     public Result GetAllFilter(String filter) {
         Result result = new Result();
-        
+
         try {
             String[] parts = filter.split("\\s");
-            
+
             if (parts.length != 3) {
                 result.correct = false;
                 result.errorMessage = "invalid format. it must be: attributte+operator+value";
                 return result;
             }
-            
+
             String attribute = parts[0].toLowerCase();
             String operator = parts[1].toLowerCase();
             String value = parts[2];
-            
+
             List<User> usersFiltered = usersList.stream()
                     .filter(user -> {
                         String attrValue;
-                        
-                        switch(attribute) {
-                            case "email": attrValue = user.getEmail(); break;                       
-                            case "id": attrValue = user.getId(); break;                       
-                            case "name": attrValue = user.getEmail(); break;                       
-                            case "phone": attrValue = user.getPhone(); break;                       
-                            case "tax_id": attrValue = user.getTax_id(); break;
-                            default: return false;   
+
+                        switch (attribute) {
+                            case "email":
+                                attrValue = user.getEmail();
+                                break;
+                            case "id":
+                                attrValue = user.getId();
+                                break;
+                            case "name":
+                                attrValue = user.getEmail();
+                                break;
+                            case "phone":
+                                attrValue = user.getPhone();
+                                break;
+                            case "tax_id":
+                                attrValue = user.getTax_id();
+                                break;
+                            default:
+                                return false;
                         }
-                        
+
                         if (attrValue == null) {
                             return false;
                         }
-                        
+
                         return switch (operator) {
-                            case "eq" -> attrValue.equals(value);
-                            case "co" -> attrValue.contains(value);
-                            case "sw" -> attrValue.startsWith(value);
-                            case "ew" -> attrValue.endsWith(value);
-                            default -> false;
+                            case "eq" ->
+                                attrValue.equals(value);
+                            case "co" ->
+                                attrValue.contains(value);
+                            case "sw" ->
+                                attrValue.startsWith(value);
+                            case "ew" ->
+                                attrValue.endsWith(value);
+                            default ->
+                                false;
                         };
                     })
                     .collect(Collectors.toList());
-            
+
             result.object = usersFiltered;
             result.correct = true;
-            
-            
+
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
 
@@ -153,12 +171,18 @@ public class UserService {
 
             String idUUID = UUID.randomUUID().toString();
             user.setId(idUUID);
-            
+
             String passwordEncypted = EncryptService.encrypt(user.getPassword());
             user.setPassword(passwordEncypted);
-            
+
             user.setCreated_at(getMadagascarDate());
-            
+
+            if (user.getAddresses() != null) {
+                for (Address address : user.getAddresses()) {
+                    address.setId(TotalAddresses++);
+                }
+            }
+
             usersList.add(user);
 
             result.object = user;
@@ -173,11 +197,10 @@ public class UserService {
         return result;
     }
 
-    public Result Update(User user, String id) {
+    public Result Update(UserUpdate user, String id) {
         Result result = new Result();
 
         try {
-            //User userFind = usersList.get(id);
             User userFind = null;
 
             for (User userFor : usersList) {
@@ -188,11 +211,25 @@ public class UserService {
             }
 
             if (userFind != null) {
-                userFind.setEmail(user.getEmail());
-                userFind.setName(user.getName());
-                userFind.setPhone(user.getPhone());
-                userFind.setPassword(user.getPassword());
-                userFind.setTax_id(user.getTax_id());
+                if (user.getEmail() != null) {
+                    userFind.setEmail(user.getEmail());
+                }
+
+                if (user.getName() != null) {
+                    userFind.setName(user.getName());
+                }
+
+                if (user.getPhone() != null) {
+                    userFind.setPhone(user.getPhone());
+                }
+
+                if (user.getPassword() != null) {
+                    userFind.setPassword(EncryptService.encrypt(user.getPassword()));
+                }
+
+                if (user.getTax_id() != null) {
+                    userFind.setTax_id(user.getTax_id());
+                }
 
                 result.object = userFind;
                 result.correct = true;

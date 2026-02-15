@@ -1,15 +1,11 @@
-package com.TechnicalTest.MSanchezTechinicalTest.Model;
+package com.TechnicalTest.MSanchezTechinicalTest.DTO;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import java.util.Date;
-import java.util.List;
 
-@Schema(description = "It represents a user in the system")
-public class User {
+@Schema(description = "DTO for update endpoint")
+public class UserUpdate {
     
     @Schema(hidden = true)
     private String id;
@@ -26,36 +22,16 @@ public class User {
     @Pattern(regexp = "^[A-ZÑ&]{4}\\d{6}[A-Z0-9]{3}$",
             message = "Tax_id is not valid.")
     private String tax_id;
-    
-    @Schema(hidden = true)
-    @JsonFormat(
-            pattern = "dd-MM-yyyy HH:mm",
-            timezone = "Indian/Antananarivo")
-    private Date created_at;
 
-    @Valid
-    public List<Address> addresses;
-
-    public User() {
+    public UserUpdate() {
     }
     
-    public User(String email, String name, String phone, String password, String tax_id, Date created_at) {
+    public UserUpdate(String email, String name, String phone, String password, String tax_id) {
         this.email = email;
         this.name = name;
         this.phone = phone;
         this.password = password;
         this.tax_id = tax_id;
-        this.created_at = created_at;
-    }
-
-    public User(String email, String name, String phone, String password, String tax_id, Date created_at, List<Address> addresses) {
-        this.email = email;
-        this.name = name;
-        this.phone = phone;
-        this.password = password;
-        this.tax_id = tax_id;
-        this.created_at = created_at;
-        this.addresses = addresses;
     }
 
     public String getId() {
@@ -105,21 +81,4 @@ public class User {
     public void setTax_id(String tax_id) {
         this.tax_id = tax_id;
     }
-
-    public Date getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
-    }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
-
 }
